@@ -1,0 +1,21 @@
+# Pipeline / agent context
+.context/
+
+# Go build artifacts
+/grid
+/grid.exe
+dist/
+bin/
+*.test
+*.out
+coverage.txt
+test-*.json
+
+# Editor / OS noise
+.DS_Store
+
+# CLI scratch state
+**/.grid/
+
+# CI diagnostics
+test.log

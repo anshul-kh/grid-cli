@@ -1,0 +1,11 @@
+# Keep LF in the working tree everywhere so `gofmt -l` is meaningful on
+# Windows runners (a CRLF checkout makes every Go file look unformatted).
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.zip binary
+*.gz binary
+*.exe binary

@@ -1,0 +1,16 @@
+Speak RESP
+  ·  ~0 min  ·  <DIR>
+
+attempt expires in <DURATION>
+
+last check: <AGO>
+  measured       The RESP server binary exists                <MS>ms
+  error          RESP server answers PING                     <MS>ms
+
+measured 2/3 — these are observations, not a verdict
+run `grid submit` to have the server judge them
+
+last submit: <AGO>
+FAILED
+  ✔  The RESP server binary exists
+  ✖  RESP server answers PING

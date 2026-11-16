@@ -1,0 +1,66 @@
+# GoReleaser v2 configuration for grid-cli.
+# Validate: goreleaser check
+# Local dry run (builds into dist/, publishes nothing): goreleaser release --snapshot --clean
+version: 2
+
+project_name: grid-cli
+
+before:
+  hooks:
+    - go mod tidy
+    # Ship completion scripts in the archives (golang-cli skill convention). Cobra's
+    # built-in `completion` command (see cmd/root.go) generates these — no extra deps.
+    - sh -c 'mkdir -p completions && for sh in bash zsh fish; do go run . completion "$sh" > "completions/grid.$sh"; done'
+    - sh -c 'go run . completion powershell > completions/grid.ps1'
+
+builds:
+  - id: grid
+    main: .
+    binary: grid
+    env:
+      - CGO_ENABLED=0
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+      # internal/buildinfo is the one version-metadata mechanism this CLI has
+      # (see cmd/version.go) — these are the only -X targets, ever.
+      - -X github.com/anshul-kh/grid-cli/internal/buildinfo.Version={{ .Version }}
+      - -X github.com/anshul-kh/grid-cli/internal/buildinfo.Commit={{ .ShortCommit }}
+      - -X github.com/anshul-kh/grid-cli/internal/buildinfo.Date={{ .Date }}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - id: grid
+    ids: [grid]
+    formats: [tar.gz]
+    # install.sh/install.ps1 and internal/upgrade/asset.go both parse this
+    # name — "<project>_<version>_<os>_<arch>.<ext>" — token-wise, so keep
+    # the three identifying tokens (os/arch/ext) in sync with both.
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - README.md
+      - completions/*
+
+checksum:
+  # internal/upgrade/asset.go::findChecksumsAsset expects exactly this name.
+  name_template: "checksums.txt"
+  algorithm: sha256
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+
+release:
+  github:
+    owner: anshul-kh
+    name: grid-cli

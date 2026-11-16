@@ -1,0 +1,216 @@
+{
+  "schema": "grid-attest-vectors-v1",
+  "canonical": [
+    {
+      "name": "flat-object-keys-sorted",
+      "input": {
+        "b": 1,
+        "a": 2,
+        "c": 3
+      },
+      "expected": "{\"a\":2,\"b\":1,\"c\":3}"
+    },
+    {
+      "name": "nested-objects-and-arrays",
+      "input": {
+        "z": {
+          "y": [
+            3,
+            1,
+            2
+          ],
+          "x": null
+        },
+        "a": true
+      },
+      "expected": "{\"a\":true,\"z\":{\"x\":null,\"y\":[3,1,2]}}"
+    },
+    {
+      "name": "empty-containers",
+      "input": {
+        "obj": {},
+        "arr": []
+      },
+      "expected": "{\"arr\":[],\"obj\":{}}"
+    },
+    {
+      "name": "unicode",
+      "input": {
+        "k": "héllo → 世界 🙂"
+      },
+      "expected": "{\"k\":\"héllo → 世界 🙂\"}"
+    },
+    {
+      "name": "control-chars",
+      "input": {
+        "k": "a\nb\tc\bd\u0001e"
+      },
+      "expected": "{\"k\":\"a\\nb\\tc\\bd\\u0001e\"}"
+    },
+    {
+      "name": "no-html-escaping",
+      "input": {
+        "k": "\u003cscript\u003e\u0026\u003c/script\u003e"
+      },
+      "expected": "{\"k\":\"\u003cscript\u003e\u0026\u003c/script\u003e\"}"
+    },
+    {
+      "name": "float-shortest-roundtrip",
+      "input": {
+        "a": 1e-7,
+        "b": 1e21,
+        "c": 1014.6,
+        "d": 1e-6
+      },
+      "expected": "{\"a\":1e-7,\"b\":1e+21,\"c\":1014.6,\"d\":0.000001}"
+    },
+    {
+      "name": "integer-boundaries",
+      "input": {
+        "zero": 0,
+        "max": 9007199254740992,
+        "neg": -42
+      },
+      "expected": "{\"max\":9007199254740992,\"neg\":-42,\"zero\":0}"
+    },
+    {
+      "name": "negative-zero",
+      "input": {
+        "k": -0.0
+      },
+      "expected": "{\"k\":0}"
+    },
+    {
+      "name": "bools-and-null",
+      "input": {
+        "t": true,
+        "f": false,
+        "n": null
+      },
+      "expected": "{\"f\":false,\"n\":null,\"t\":true}"
+    },
+    {
+      "name": "u2028-u2029-not-escaped",
+      "input": {
+        "k": "a\u2028b\u2029c"
+      },
+      "expected": "{\"k\":\"a\u2028b\u2029c\"}"
+    },
+    {
+      "name": "deep-nested",
+      "input": {
+        "a": {
+          "b": {
+            "c": [
+              {
+                "d": 1
+              }
+            ]
+          }
+        }
+      },
+      "expected": "{\"a\":{\"b\":{\"c\":[{\"d\":1}]}}}"
+    },
+    {
+      "name": "array-order-preserved",
+      "input": [
+        3,
+        1,
+        2,
+        "x",
+        null,
+        true
+      ],
+      "expected": "[3,1,2,\"x\",null,true]"
+    },
+    {
+      "name": "string-escapes",
+      "input": {
+        "k": "quote\" back\\ slash"
+      },
+      "expected": "{\"k\":\"quote\\\" back\\\\ slash\"}"
+    },
+    {
+      "name": "scalar-root",
+      "input": "hello",
+      "expected": "\"hello\""
+    }
+  ],
+  "signatures": [
+    {
+      "name": "device-envelope",
+      "kind": "device",
+      "publicKey": "Mv9P/A2XuNuqjlGEA6/xOhsnJQYkz/FDDKSYjV5gFKQ=",
+      "envelope": {
+        "attemptId": "att_98f7a6b5",
+        "attemptNonce": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "submittedAt": "2026-11-15T18:30:00Z",
+        "clientMetadata": {
+          "arch": "amd64",
+          "cliBinaryHash": "sha256:4a1c9d2718a1f0d6bb1e1c7678ba543f9d0e8c7a65b4a3f2e1d0c9b8a7f6e5d4",
+          "cliVersion": "1.4.2",
+          "os": "linux"
+        },
+        "workspaceProof": {
+          "gitHeadSha": "9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e",
+          "saltedTreeHash": "sha256:7c3a1f2e4d5c6b7a8901fedcba9876543210fedcba9876543210fedcba987654"
+        },
+        "results": [
+          {
+            "checkId": "__setup__#0",
+            "status": "ok",
+            "durationMs": 1200,
+            "evidence": {
+              "durationMs": 1200,
+              "exitCode": 0,
+              "stderr": "",
+              "stdout": "go1.23.0"
+            }
+          },
+          {
+            "checkId": "load_1k_rps",
+            "status": "ok",
+            "durationMs": 60210,
+            "extension": "loadtest@0.1.0",
+            "extBinaryHash": "sha256:8f4b2e37a9c1d0e5f6b7a8293fedcba9876543210fedcba9876543210fedcba987",
+            "telemetry": {
+              "actualRps": 1014.6,
+              "challengeEchoesVerified": 60870,
+              "errorRate": 0.0001,
+              "maxMs": 182.4,
+              "p50Ms": 14.2,
+              "p90Ms": 48.9,
+              "p99Ms": 94.1,
+              "totalRequests": 60876
+            },
+            "extSignature": "base64:PS3J7+gc7ZEmqb75ZPzbrxjpU0o2b/WmvQhpmrIKbo+Z3mW3yJoOqjoe6PAMU8KainFG67ecqXvCxTi1m93+BA=="
+          }
+        ],
+        "deviceSignature": "base64:N+IJ4L0S5w371kdzJTRk7/ygqfrr/jIBn7mkv/JO7yCP1/jqZ94L6eiFrGOr6zuYwpsDetA6HmfacS2xZPGkDg=="
+      },
+      "signature": "base64:N+IJ4L0S5w371kdzJTRk7/ygqfrr/jIBn7mkv/JO7yCP1/jqZ94L6eiFrGOr6zuYwpsDetA6HmfacS2xZPGkDg==",
+      "signingInputHex": "7b22617474656d70744964223a226174745f3938663761366235222c22617474656d70744e6f6e6365223a2265336230633434323938666331633134396166626634633839393666623932343237616534316534363439623933346361343935393931623738353262383535222c22636c69656e744d65746164617461223a7b2261726368223a22616d643634222c22636c6942696e61727948617368223a227368613235363a34613163396432373138613166306436626231653163373637386261353433663964306538633761363562346133663265316430633962386137663665356434222c22636c6956657273696f6e223a22312e342e32222c226f73223a226c696e7578227d2c22726573756c7473223a5b7b22636865636b4964223a225f5f73657475705f5f2330222c226475726174696f6e4d73223a313230302c2265766964656e6365223a7b226475726174696f6e4d73223a313230302c2265786974436f6465223a302c22737464657272223a22222c227374646f7574223a22676f312e32332e30227d2c22737461747573223a226f6b227d2c7b22636865636b4964223a226c6f61645f316b5f727073222c226475726174696f6e4d73223a36303231302c2265787442696e61727948617368223a227368613235363a386634623265333761396331643065356636623761383239336665646362613938373635343332313066656463626139383736353433323130666564636261393837222c226578745369676e6174757265223a226261736536343a5053334a372b6763375a456d716237355a507a6272786a7055306f32622f576d765168706d72494b626f2b5a336d5733794a6f4f716a6f653650414d55384b61696e46473637656371587643785469316d39332b42413d3d222c22657874656e73696f6e223a226c6f61647465737440302e312e30222c22737461747573223a226f6b222c2274656c656d65747279223a7b2261637475616c527073223a313031342e362c226368616c6c656e67654563686f65735665726966696564223a36303837302c226572726f7252617465223a302e303030312c226d61784d73223a3138322e342c227035304d73223a31342e322c227039304d73223a34382e392c227039394d73223a39342e312c22746f74616c5265717565737473223a36303837367d7d5d2c227375626d69747465644174223a22323032362d31312d31355431383a33303a30305a222c22776f726b737061636550726f6f66223a7b2267697448656164536861223a2239663865376436633562346133663265316430633962386137663665356434633362326131663065222c2273616c7465645472656548617368223a227368613235363a37633361316632653464356336623761383930316665646362613938373635343332313066656463626139383736353433323130666564636261393837363534227d7d"
+    },
+    {
+      "name": "ext-telemetry",
+      "kind": "ext",
+      "publicKey": "Mv9P/A2XuNuqjlGEA6/xOhsnJQYkz/FDDKSYjV5gFKQ=",
+      "attemptId": "att_98f7a6b5",
+      "attemptNonce": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "checkId": "load_1k_rps",
+      "extBinaryHash": "sha256:8f4b2e37a9c1d0e5f6b7a8293fedcba9876543210fedcba9876543210fedcba987",
+      "telemetry": {
+        "actualRps": 1014.6,
+        "challengeEchoesVerified": 60870,
+        "errorRate": 0.0001,
+        "maxMs": 182.4,
+        "p50Ms": 14.2,
+        "p90Ms": 48.9,
+        "p99Ms": 94.1,
+        "totalRequests": 60876
+      },
+      "signature": "base64:PS3J7+gc7ZEmqb75ZPzbrxjpU0o2b/WmvQhpmrIKbo+Z3mW3yJoOqjoe6PAMU8KainFG67ecqXvCxTi1m93+BA==",
+      "signingInputHex": "7b22617474656d70744964223a226174745f3938663761366235222c22617474656d70744e6f6e6365223a2265336230633434323938666331633134396166626634633839393666623932343237616534316534363439623933346361343935393931623738353262383535222c22636865636b4964223a226c6f61645f316b5f727073222c2265787442696e61727948617368223a227368613235363a386634623265333761396331643065356636623761383239336665646362613938373635343332313066656463626139383736353433323130666564636261393837222c2274656c656d65747279223a7b2261637475616c527073223a313031342e362c226368616c6c656e67654563686f65735665726966696564223a36303837302c226572726f7252617465223a302e303030312c226d61784d73223a3138322e342c227035304d73223a31342e322c227039304d73223a34382e392c227039394d73223a39342e312c22746f74616c5265717565737473223a36303837367d7d"
+    }
+  ]
+}

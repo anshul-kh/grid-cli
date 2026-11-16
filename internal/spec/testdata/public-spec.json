@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "workdir": ".",
+  "timeout": "180s",
+  "env": { "CGO_ENABLED": "0" },
+  "setup": [{ "run": ["go", "version"] }],
+  "services": [
+    { "id": "server", "run": ["go", "run", "."], "ready": { "tcp": "127.0.0.1:6380", "timeout": "20s" } }
+  ],
+  "checks": [
+    { "id": "c-file-exists", "title": "a.txt exists", "hint": "Create a.txt.", "type": "file.exists", "path": "a.txt", "weight": 1 },
+    { "id": "c-file-contains", "title": "a.txt contains the answer", "type": "file.contains", "path": "a.txt" },
+    { "id": "c-file-hash", "type": "file.hash", "path": "a.txt", "weight": 1 },
+    { "id": "c-dir-exists", "type": "dir.exists", "path": "dir", "weight": 1 },
+    { "id": "c-dir-tree", "type": "dir.tree", "path": "dir", "max_depth": 2, "weight": 1 },
+    { "id": "c-cmd-exit", "title": "go build succeeds", "type": "cmd.exit_code", "run": ["go", "build", "./..."], "cwd": ".", "env": { "X": "1" }, "timeout": "60s", "weight": 1 },
+    { "id": "c-cmd-stdout-matches", "type": "cmd.stdout_matches", "run": ["echo", "hi"], "weight": 1 },
+    { "id": "c-cmd-stdout-equals", "type": "cmd.stdout_equals", "run": ["echo", "hi"], "weight": 1 },
+    { "id": "c-cmd-stderr-matches", "type": "cmd.stderr_matches", "run": ["node", "x.js"], "depends_on": ["c-cmd-exit"], "weight": 1 },
+    { "id": "c-http", "type": "http.request", "method": "GET", "url": "http://127.0.0.1:8080/health", "headers": { "Accept": "application/json" }, "weight": 1 },
+    { "id": "c-json-file", "type": "json.file", "path": "pkg.json", "jsonpath": "$.version", "weight": 1 },
+    { "id": "c-git-commit", "type": "git.has_commit", "path": ".", "weight": 1 },
+    { "id": "c-git-tracked", "type": "git.file_tracked", "path": "a.txt", "weight": 1 },
+    { "id": "c-env-var", "type": "env.var_set", "name": "API_KEY", "pattern": "^sk-", "weight": 1 },
+    { "id": "c-tool", "type": "tool.installed", "name": "go", "version_args": ["version"], "weight": 3, "optional": true }
+  ]
+}

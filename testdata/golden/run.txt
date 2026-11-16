@@ -1,0 +1,15 @@
+Speak RESP
+intermediate  ·  ~30 min
+Created grid-build-a-redis-core-in-go-02-speak-resp.
+
+Tasks ──────────────────────────────────────────────────────────────────────────
+  1. The RESP server binary exists
+  2. RESP server answers PING
+  3. Server handles the COMMAND listing
+
+Next steps ─────────────────────────────────────────────────────────────────────
+  cd grid-build-a-redis-core-in-go-02-speak-resp
+  grid check
+  grid submit
+
+http://localhost:3000/courses/build-a-redis-core-in-go/lessons/02-speak-resp

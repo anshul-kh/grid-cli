@@ -1,0 +1,5 @@
+grid dev
+  commit:  none
+  built:   unknown
+  os/arch: <OS>/<ARCH>
+  go:      <GOVERSION>

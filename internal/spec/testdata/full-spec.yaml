@@ -1,0 +1,105 @@
+# Judge-complete check-spec fixture — one of every GRID_SPEC §4 check type,
+# mirroring grid-backend's tests/unit/content.publicview.test.ts FIXTURE_SPEC
+# (the authoritative judge-side grammar exercise). The public view served to
+# `grid run` is public-spec.json, produced from this shape by
+# toPublicCheckSpec.
+version: 1
+workdir: "."
+timeout: 180s
+env:
+  CGO_ENABLED: "0"
+setup:
+  - run: ["go", "version"]
+    expect_exit: 0
+services:
+  - id: server
+    run: ["go", "run", "."]
+    ready:
+      tcp: "127.0.0.1:6380"
+      timeout: 20s
+checks:
+  - id: c-file-exists
+    title: "a.txt exists"
+    hint: "Create a.txt."
+    type: file.exists
+    path: a.txt
+    negate: true
+  - id: c-file-contains
+    title: "a.txt contains the answer"
+    type: file.contains
+    path: a.txt
+    pattern: "secret-answer"
+    ignore_case: true
+  - id: c-file-hash
+    type: file.hash
+    path: a.txt
+    sha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  - id: c-dir-exists
+    type: dir.exists
+    path: dir
+    negate: false
+  - id: c-dir-tree
+    type: dir.tree
+    path: dir
+    must_include: ["keep.txt"]
+    must_not_include: ["secret.txt"]
+    max_depth: 2
+  - id: c-cmd-exit
+    title: "go build succeeds"
+    type: cmd.exit_code
+    run: ["go", "build", "./..."]
+    equals: 0
+    cwd: "."
+    env:
+      X: "1"
+    timeout: 60s
+  - id: c-cmd-stdout-matches
+    type: cmd.stdout_matches
+    run: ["echo", "hi"]
+    pattern: "^hi$"
+    ignore_case: true
+  - id: c-cmd-stdout-equals
+    type: cmd.stdout_equals
+    run: ["echo", "hi"]
+    value: "hi"
+    trim: true
+  - id: c-cmd-stderr-matches
+    type: cmd.stderr_matches
+    run: ["node", "x.js"]
+    pattern: "Error"
+    depends_on: ["c-cmd-exit"]
+  - id: c-http
+    type: http.request
+    method: GET
+    url: "http://127.0.0.1:8080/health"
+    headers:
+      Accept: "application/json"
+    expect:
+      status: 200
+      body_matches: "ok"
+      jsonpath: "$.status"
+      equals: "ok"
+  - id: c-json-file
+    type: json.file
+    path: pkg.json
+    jsonpath: "$.version"
+    equals: "1.0.0"
+  - id: c-git-commit
+    type: git.has_commit
+    path: "."
+    message_matches: "^feat:"
+    min_count: 2
+  - id: c-git-tracked
+    type: git.file_tracked
+    path: a.txt
+  - id: c-env-var
+    type: env.var_set
+    name: API_KEY
+    pattern: "^sk-"
+  - id: c-tool
+    type: tool.installed
+    name: go
+    version_args: ["version"]
+    version_matches: "go1\\.2[0-9]"
+    weight: 3
+    optional: true

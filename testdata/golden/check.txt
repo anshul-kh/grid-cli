@@ -1,0 +1,8 @@
+────────────────────────────────────────────────────────────────────────────────
+  measured       The RESP server binary exists                → exists=true <MS>ms
+  measured       RESP server answers PING                     → exit=0 <MS>ms
+  measured       Server handles the COMMAND listing           → exit=0 <MS>ms
+────────────────────────────────────────────────────────────────────────────────
+
+measured 3/3 — these are observations, not a verdict
+run `grid submit` to have the server judge them

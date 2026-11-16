@@ -1,0 +1,1 @@
+  Build a Redis core in Go                         INTERMEDIATE   [=====---------------]  25%  (8 lessons)  ACTIVE

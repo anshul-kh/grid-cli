@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "ready": true,
+  "tags": ["go", "cli"],
+  "permission": {
+    "edit": "allow",
+    "webfetch": "ask"
+  },
+  "$schema": "https://example.com/schema.json",
+  "hooks": {
+    "PostToolUse": [
+      { "matcher": "Write" }
+    ]
+  }
+}
