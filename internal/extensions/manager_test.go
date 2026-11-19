@@ -237,7 +237,7 @@ func TestEnsureRemoteMirrorLayout(t *testing.T) {
 	if !downloaded {
 		t.Error("downloaded = false, want true")
 	}
-	rel := fmt.Sprintf("/grid-ext-loadtest/0.1.0/%s-%s/%s", runtime.GOOS, runtime.GOARCH, BinaryName("loadtest"))
+	rel := fmt.Sprintf("/v0.1.0/grid-ext-loadtest_0.1.0_%s-%s", runtime.GOOS, runtime.GOARCH)
 	if len(gotURLs) != 2 {
 		t.Fatalf("fetched %d URLs, want 2 (binary + signature): %v", len(gotURLs), gotURLs)
 	}

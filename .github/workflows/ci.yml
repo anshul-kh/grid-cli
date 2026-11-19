@@ -49,3 +49,21 @@ jobs:
 
       - name: Build
         run: go build ./...
+
+      # Attach the per-OS binary to the run so a green build is actually
+      # downloadable, and so smoke-testing a PR does not require a local Go
+      # toolchain.
+      - name: Build release binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          go build -trimpath -ldflags "-s -w" -o "grid${{ runner.os == 'Windows' && '.exe' || '' }}" .
+          ls -lh grid*
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: grid-${{ matrix.os }}
+          path: grid${{ runner.os == 'Windows' && '.exe' || '' }}
+          if-no-files-found: error
+

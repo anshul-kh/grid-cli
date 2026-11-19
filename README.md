@@ -18,6 +18,16 @@ macOS or Linux:
 curl -fsSL https://raw.githubusercontent.com/anshul-kh/grid-cli/main/install.sh | sh
 ```
 
+Fedora / RHEL / Rocky / Alma:
+
+```bash
+# system-wide package (also installs shell completions)
+curl -fsSL https://raw.githubusercontent.com/anshul-kh/grid-cli/main/install.sh \
+  | sudo GRID_INSTALL_METHOD=rpm sh
+# or download the RPM from the release page and let dnf handle it
+sudo dnf install ./grid-cli_<version>_linux_x86_64.rpm
+```
+
 Windows (PowerShell):
 
 ```powershell
@@ -26,14 +36,23 @@ irm https://raw.githubusercontent.com/anshul-kh/grid-cli/main/install.ps1 | iex
 
 Both scripts download the release archive for your OS/arch from
 [GitHub Releases](https://github.com/anshul-kh/grid-cli/releases) (built by
-`.goreleaser.yaml`: `linux`/`darwin`/`windows` × `amd64`/`arm64`), **verify its checksum against
-the release's `checksums.txt` before installing anything**, and never prompt for or invoke
-root/sudo (or a Windows UAC elevation) — if neither a writable system directory nor a per-user
-one is available, they fail with instructions instead of escalating silently. `install.sh`
-prefers `/usr/local/bin` if it's writable, falling back to `~/.local/bin` (printing a `PATH`
-hint if needed); `install.ps1` prefers `%ProgramFiles%\grid-cli`, falling back to
-`%LOCALAPPDATA%\grid-cli` (added to your user `PATH` automatically). Pin a version with
+`.goreleaser.yaml`: `linux`/`darwin`/`windows` × `amd64`/`arm64`, plus a
+Fedora/RHEL `.rpm`), **verify its checksum against the release's
+`checksums.txt` before installing anything**, and never prompt for or invoke
+root/sudo (or a Windows UAC elevation) — if neither a writable system directory
+nor a per-user one is available, they fail with instructions instead of
+escalating silently. `install.sh` prefers `/usr/local/bin` if it's writable,
+falling back to `~/.local/bin` (printing a `PATH` hint if needed); `install.ps1`
+prefers `%ProgramFiles%\grid-cli`, falling back to `%LOCALAPPDATA%\grid-cli`
+(added to your user `PATH` automatically). Pin a version with
 `GRID_INSTALL_VERSION=v1.2.3` / `$env:GRID_INSTALL_VERSION = "v1.2.3"`.
+
+If a release is missing the archive for your platform, `auto` (the default)
+falls back to cloning that tag and building with `go build` — install `git` and
+Go 1.27+ first (`sudo dnf install -y golang git` on Fedora,
+`sudo apt-get install -y golang-go git` on Debian/Ubuntu). Force a path with
+`GRID_INSTALL_METHOD=archive|source|rpm` (`$env:GRID_INSTALL_METHOD` on
+Windows, where `auto|archive|source` apply).
 
 ### Go toolchain
 
@@ -170,7 +189,8 @@ There is no config file yet.
 
 | Environment variable | Equivalent flag | Default |
 |---|---|---|
-| `GRID_API_URL` | `--api` | `http://localhost:4000/api/v1` |
+| `GRID_API_URL` | `--api` | `https://3-111-242-107.nip.io/api/v1` |
+| `GRID_WEB_URL` | — | `https://grid-ghost-ebon.vercel.app` (fallback for messages with no server-provided URL) |
 | `GRID_NO_COLOR` (or the standard `NO_COLOR`) | `--no-color` | colour enabled (when stdout is a terminal) |
 | `GRID_DIR` | `--dir` | the current directory |
 | `GRID_TIMEOUT` | `--timeout` | `30s` |

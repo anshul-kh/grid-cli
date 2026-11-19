@@ -19,3 +19,4 @@ test-*.json
 
 # CI diagnostics
 test.log
+completions/

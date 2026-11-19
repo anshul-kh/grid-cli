@@ -15,7 +15,7 @@ import (
 
 const (
 	// DefaultAPIURL is the built-in Grid API base URL (TASK.md §6).
-	DefaultAPIURL = "http://localhost:4000/api/v1"
+	DefaultAPIURL = "https://3-111-242-107.nip.io/api/v1"
 	// DefaultTimeout is the default per-request timeout.
 	DefaultTimeout = 30 * time.Second
 )

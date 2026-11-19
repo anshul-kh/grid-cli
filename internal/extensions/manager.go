@@ -21,10 +21,10 @@ const EnvMirror = "GRID_EXT_MIRROR"
 // precedent: subprocess-touching code never runs against the real home).
 const EnvCacheDir = "GRID_EXT_CACHE_DIR"
 
-// DefaultMirrorBase is the future GitHub Releases location the frozen
-// mirror layout will be served from once a release exists. Nothing is
-// published there yet — downloads from it fail with that stated in the
-// error.
+// DefaultMirrorBase is the GitHub Releases download root for extension
+// binaries. A release for tag `v<version>` carries flat, uniquely named
+// assets (see remoteAssetName); grid-extensions' release workflow publishes
+// exactly that layout.
 const DefaultMirrorBase = "https://github.com/anshul-kh/grid-extensions/releases/download"
 
 // httpTimeout bounds one remote mirror fetch.
@@ -236,18 +236,37 @@ func (m *Manager) fetchLocal(mirror, name, version string) ([]byte, []byte, erro
 }
 
 func (m *Manager) fetchRemote(name, version string) ([]byte, []byte, error) {
-	binRel, sigRel := mirrorRelPath(name, version)
-	bin, err := m.httpGet(DefaultMirrorBase + "/" + binRel)
+	binAsset, sigAsset := remoteAssetName(name, version, runtime.GOOS, runtime.GOARCH)
+	base := DefaultMirrorBase + "/" + remoteTag(version) + "/"
+	bin, err := m.httpGet(base + binAsset)
 	if err != nil {
-		return nil, nil, fmt.Errorf("downloading grid-ext-%s %s from %s/%s: %w — no public release mirror exists yet; for development set %s to a signed dist directory (e.g. ../grid-extensions/dist)",
-			name, version, DefaultMirrorBase, binRel, err, EnvMirror)
+		return nil, nil, fmt.Errorf("downloading grid-ext-%s %s from %s%s: %w — check that release %s has that asset, or for development set %s to a signed dist directory (e.g. ../grid-extensions/dist)",
+			name, version, base, binAsset, err, remoteTag(version), EnvMirror)
 	}
-	sig, err := m.httpGet(DefaultMirrorBase + "/" + sigRel)
+	sig, err := m.httpGet(base + sigAsset)
 	if err != nil {
-		return nil, nil, fmt.Errorf("downloading grid-ext-%s %s's detached signature from %s/%s: %w — no public release mirror exists yet; for development set %s to a signed dist directory",
-			name, version, DefaultMirrorBase, sigRel, err, EnvMirror)
+		return nil, nil, fmt.Errorf("downloading grid-ext-%s %s's detached signature from %s%s: %w — check that release %s has that asset, or for development set %s to a signed dist directory",
+			name, version, base, sigAsset, err, remoteTag(version), EnvMirror)
 	}
 	return bin, sig, nil
+}
+
+// remoteTag turns a pinned version ("0.1.0") into the release tag it is
+// published under ("v0.1.0"); a version already carrying the prefix is used
+// as given.
+func remoteTag(version string) string {
+	if strings.HasPrefix(version, "v") {
+		return version
+	}
+	return "v" + version
+}
+
+// remoteAssetName is the flat GitHub release asset name for a binary and its
+// detached signature. Release assets have no directory structure, so os/arch
+// live in the filename; the tag is in the URL, not the name.
+func remoteAssetName(name, version, goos, goarch string) (bin, sig string) {
+	base := fmt.Sprintf("grid-ext-%s_%s_%s-%s", name, version, goos, goarch)
+	return base, base + ".sig"
 }
 
 func httpGetBytes(url string) ([]byte, error) {

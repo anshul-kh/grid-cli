@@ -48,7 +48,7 @@ func AttemptsDir() (string, error) {
 // to print that points at the web app but has made no network call to ask
 // the server for its real URL (e.g. "no open attempt anywhere" — there is
 // no enrollUrl to echo back, because nothing was fetched).
-const DefaultWebURL = "http://localhost:3000"
+const DefaultWebURL = "https://grid-ghost-ebon.vercel.app"
 
 // EnvWebURL overrides DefaultWebURL for local dev against a non-default
 // port, mirroring EnvAPIURL's precedence.

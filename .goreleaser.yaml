@@ -49,8 +49,35 @@ archives:
 
 checksum:
   # internal/upgrade/asset.go::findChecksumsAsset expects exactly this name.
+  # Covers every artifact including the RPM: install.sh verifies the package
+  # it downloads against this file before handing it to dnf.
   name_template: "checksums.txt"
   algorithm: sha256
+
+# Fedora / RHEL / openSUSE package. goreleaser ships nfpm, so no extra tooling
+# is installed in CI. The package installs the binary plus the shell
+# completions the `before` hooks generated, and is attached to the same
+# GitHub release as the tar.gz archives.
+nfpms:
+  - id: grid-rpm
+    package_name: grid-cli
+    # install.sh looks for exactly "<project>_<version>_linux_<arch>.rpm".
+    file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    vendor: Grid
+    homepage: https://github.com/anshul-kh/grid-cli
+    maintainer: Anshul <kh.anshul04@gmail.com>
+    description: |
+      Grid CLI — run, check and submit Grid lessons from your terminal.
+    license: MIT
+    formats: [rpm]
+    bindir: /usr/bin
+    contents:
+      - src: completions/grid.bash
+        dst: /usr/share/bash-completion/completions/grid
+      - src: completions/grid.zsh
+        dst: /usr/share/zsh/site-functions/_grid
+      - src: completions/grid.fish
+        dst: /usr/share/fish/vendor_completions.d/grid.fish
 
 changelog:
   sort: asc

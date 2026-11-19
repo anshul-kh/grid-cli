@@ -1,9 +1,20 @@
 name: release
 
+# Two ways to cut a release:
+#   1. push a tag:            git tag v0.2.0 && git push origin v0.2.0
+#   2. Actions -> release -> Run workflow, with a version like v0.2.0
+# The manual path creates the tag from the selected ref when it does not exist,
+# so a tag that was never pushed can no longer mean "nothing happened".
 on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release tag to cut, e.g. v0.2.0 (created from the selected ref if missing)"
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -22,6 +33,33 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+          cache: true
+
+      # GoReleaser refuses to run unless HEAD is a tag matching the version it
+      # is releasing. Resolve that once, here, for both trigger kinds.
+      - name: Resolve release tag
+        id: tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.version }}"
+            case "$TAG" in
+              v[0-9]*) ;;
+              *) echo "::error::version must look like v1.2.3"; exit 1 ;;
+            esac
+            if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+              git checkout "refs/tags/$TAG"
+            else
+              git tag "$TAG" "$GITHUB_SHA"
+              git checkout "refs/tags/$TAG"
+            fi
+          else
+            TAG="${GITHUB_REF_NAME}"
+            git checkout "refs/tags/$TAG"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Releasing $TAG from $(git rev-parse --short HEAD)"
 
       - name: Run tests before releasing
         run: go test -race ./...
@@ -34,3 +72,20 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GORELEASER_CURRENT_TAG: ${{ steps.tag.outputs.tag }}
+
+      # goreleaser exits 0 as soon as the upload succeeds; this makes the
+      # assets actually attached to the release visible in the run summary so
+      # a missing archive/rpm is a red step, not a surprise for `install.sh`.
+      - name: Verify release assets are attached
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.tag.outputs.tag }}"
+          gh release view "$TAG" --json assets --jq '.assets[].name' | sort
+          assets=$(gh release view "$TAG" --json assets --jq '.assets[].name')
+          for want in checksums.txt grid-cli_ .rpm; do
+            grep -q "$want" <<<"$assets" || { echo "::error::release $TAG is missing $want"; exit 1; }
+          done
