@@ -55,12 +55,27 @@ func TestRunKillsEntireProcessGroupOnTimeout(t *testing.T) {
 	script := fmt.Sprintf(`trap '' TERM; ( trap '' TERM; sleep 30 ) & echo $! > %q; wait`, pidFile)
 
 	env := NewEnv(t.TempDir(), nil)
-	_, err := env.Run(context.Background(), CmdSpec{
-		Run:     []string{"sh", "-c", script},
-		Timeout: 300 * time.Millisecond,
-	})
+	run := func(timeout time.Duration) error {
+		_, err := env.Run(context.Background(), CmdSpec{
+			Run:     []string{"sh", "-c", script},
+			Timeout: timeout,
+		})
+		return err
+	}
+
+	err := run(300 * time.Millisecond)
 	if !errors.Is(err, ErrTimeout) {
 		t.Fatalf("Run error = %v, want ErrTimeout", err)
+	}
+	// A loaded CI runner (macOS especially) can take longer than 300ms just
+	// to start `sh` and record the pid. That is not what this test is about,
+	// so give the script a second, generous budget when it never got that
+	// far; it still must time out well before the grandchild's 30s sleep.
+	if _, statErr := os.Stat(pidFile); statErr != nil {
+		err = run(5 * time.Second)
+		if !errors.Is(err, ErrTimeout) {
+			t.Fatalf("retry: Run error = %v, want ErrTimeout", err)
+		}
 	}
 
 	raw, readErr := os.ReadFile(pidFile)
